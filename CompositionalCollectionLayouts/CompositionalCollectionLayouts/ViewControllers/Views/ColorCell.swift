@@ -32,10 +32,13 @@ class ColorCell: UICollectionViewCell {
 
 extension ColorCell {
     func configure() {
-        backgroundColor = UIColor.gray
+        contentView.layer.cornerRadius = 20
+        contentView.layer.masksToBounds = true
+    
         label.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(label)
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.textAlignment = .center
         label.adjustsFontForContentSizeCategory = true
         
         NSLayoutConstraint.activate([
@@ -47,7 +50,7 @@ extension ColorCell {
     
     func updateBackground() {
         guard let color = color else { return }
-        backgroundColor = color.color
-        label.text = color.favorite ? "Fave" : "Not Fave"
+        contentView.backgroundColor = color.color
+        label.text = color.favorite ? "⭐️" : ""
     }
 }

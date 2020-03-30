@@ -9,7 +9,7 @@
 import UIKit
 
 enum Section {
-    case main
+    case main, favorites
 }
 
 class ColorsViewController: UIViewController {
@@ -20,19 +20,42 @@ class ColorsViewController: UIViewController {
     var dataSource: UICollectionViewDiffableDataSource<Section, Color>!
     var collectionView: UICollectionView! = nil
     
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
-        colorController.delegate = self
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "Colors"
         configureHierarchy()
         configureDataSource()
         
+        randomColorButton()
     }
-
+    
+    func randomColorButton() {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemTeal
+        
+        
+        collectionView.addSubview(button)
+        
+        NSLayoutConstraint.activate([
+                button.heightAnchor.constraint(equalToConstant: 50),
+                button.widthAnchor.constraint(equalToConstant: 200),
+                button.bottomAnchor.constraint(equalTo: collectionView.safeAreaLayoutGuide.bottomAnchor),
+                button.centerXAnchor.constraint(equalTo: collectionView.safeAreaLayoutGuide.centerXAnchor)
+        ])
+        
+        button.addTarget(self, action: #selector(self.colorButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func colorButtonTapped(sender: UIButton!){
+        colorController.addRandomColor()
+        updateDataSource()
+    }
+    
 }
 
 extension ColorsViewController {
@@ -51,14 +74,17 @@ extension ColorsViewController {
         let layout = UICollectionViewCompositionalLayout { ( sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
             let spacing = CGFloat(10)
             
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.2), heightDimension: .fractionalHeight(1.0))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth((sectionIndex == 0) ? 0.24 : 1.0),
+                                                  heightDimension: .fractionalHeight(1.0))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.1))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-            group.interItemSpacing = .fixed(spacing)
+            group.interItemSpacing = .fixed(4)
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = spacing
             section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+            
+            
             
             return section
         }
@@ -87,20 +113,18 @@ extension ColorsViewController {
 
 extension ColorsViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ColorCell else { fatalError("Could not instantiate Color Cell")}
-        guard var color = dataSource.itemIdentifier(for: indexPath) else { return }
-        print("Favorited: \(color.name)")
+        guard let color = dataSource.itemIdentifier(for: indexPath) else { return }
         colorController.favorite(color)
-        color.favorite.toggle()
-        cell.color = color
+        updateDataSource()
     }
 }
 
-extension ColorsViewController: UpdateDataSourceDelegate {
+extension ColorsViewController {
     func updateDataSource() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Color>()
-        snapshot.appendSections([Section.main])
-        snapshot.appendItems(colorController.colors)
+        snapshot.appendSections([Section.main, Section.favorites])
+        snapshot.appendItems(colorController.colors, toSection: .main)
+        snapshot.appendItems(colorController.favorites, toSection: .favorites)
         dataSource.apply(snapshot, animatingDifferences: true)
         print(colorController.colors)
     }

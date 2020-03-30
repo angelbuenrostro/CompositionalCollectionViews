@@ -9,21 +9,29 @@
 import Foundation
 import UIKit
 
-protocol UpdateDataSourceDelegate {
-    func updateDataSource()
-}
-
 class ColorController {
     
     var colors: [Color] = [Color(name: "blue", color: UIColor.systemBlue), Color(name: "pink", color: UIColor.systemPink)]
-    
-    var delegate: UpdateDataSourceDelegate?
+    var favorites: [Color] = [Color(name: "raspberry", color: UIColor.systemIndigo, favorite: true)]
     
     func favorite(_ color: Color) {
-        guard let colorIndex = colors.firstIndex(where: { $0 == color }) else { return }
-        colors[colorIndex].favorite.toggle()
+        var newColor = Color(oldColor: color)
+        newColor.favorite.toggle()
         
-        guard let delegate = delegate else { fatalError("Could not favorite \(color.name)") }
-        delegate.updateDataSource()
+        if color.favorite {
+            guard let index = favorites.firstIndex(where: { $0 == color }) else { return }
+            favorites.remove(at: index)
+            colors.append(newColor)
+        } else {
+            guard let index = colors.firstIndex(where: { $0 == color }) else { return }
+            colors.remove(at: index)
+            favorites.insert(newColor, at: 0)
+        }
+    }
+    
+    func addRandomColor() {
+        let randomColor = UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1)
+        let newColor = Color(name: "", color: randomColor)
+        colors.append(newColor)
     }
 }
