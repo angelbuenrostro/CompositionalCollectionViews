@@ -9,7 +9,8 @@
 import UIKit
 
 enum Section {
-    case main, favorites
+    case main
+    case favorites
 }
 
 class ColorsViewController: UIViewController {
@@ -17,7 +18,7 @@ class ColorsViewController: UIViewController {
     
     let colorController = ColorController()
     
-    var dataSource: UICollectionViewDiffableDataSource<Section, Color>!
+    var dataSource: UICollectionViewDiffableDataSource<Section, ColorSwatch>!
     var collectionView: UICollectionView! = nil
     
     
@@ -30,10 +31,10 @@ class ColorsViewController: UIViewController {
         configureHierarchy()
         configureDataSource()
         
-        randomColorButton()
+        addRandomColorButton()
     }
     
-    func randomColorButton() {
+    func addRandomColorButton() {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .systemTeal
@@ -47,7 +48,7 @@ class ColorsViewController: UIViewController {
                 button.bottomAnchor.constraint(equalTo: collectionView.safeAreaLayoutGuide.bottomAnchor),
                 button.centerXAnchor.constraint(equalTo: collectionView.safeAreaLayoutGuide.centerXAnchor)
         ])
-        
+
         button.addTarget(self, action: #selector(self.colorButtonTapped), for: .touchUpInside)
     }
     
@@ -93,15 +94,15 @@ extension ColorsViewController {
     }
     
     private func configureDataSource(){
-        dataSource = UICollectionViewDiffableDataSource<Section, Color>(collectionView: collectionView) {
-            (collectionView: UICollectionView, indexPath: IndexPath, identifier: Color) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Section, ColorSwatch>(collectionView: collectionView) {
+            (collectionView: UICollectionView, indexPath: IndexPath, identifier: ColorSwatch) -> UICollectionViewCell? in
             
             // Get a cell
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ColorCell.reuseIdentifier, for: indexPath) as? ColorCell else { fatalError("Cannot create new cell")}
             
             // Populate the cell
-            let color = self.dataSource.itemIdentifier(for: indexPath)
-            cell.color = color
+            let swatch = self.dataSource.itemIdentifier(for: indexPath)
+            cell.swatch = swatch
             
             return cell
         }
@@ -113,15 +114,16 @@ extension ColorsViewController {
 
 extension ColorsViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let color = dataSource.itemIdentifier(for: indexPath) else { return }
-        colorController.favorite(color)
+        // guard var swatch = dataSource.itemIdentifier(for: indexPath) else { return }
+        colorController.colors[indexPath.item].favorite.toggle()
+        colorController.updateColors()
         updateDataSource()
     }
 }
 
 extension ColorsViewController {
     func updateDataSource() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Color>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ColorSwatch>()
         snapshot.appendSections([Section.main, Section.favorites])
         snapshot.appendItems(colorController.colors, toSection: .main)
         snapshot.appendItems(colorController.favorites, toSection: .favorites)

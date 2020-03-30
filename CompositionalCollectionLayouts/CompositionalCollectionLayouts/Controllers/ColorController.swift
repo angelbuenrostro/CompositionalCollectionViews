@@ -11,27 +11,19 @@ import UIKit
 
 class ColorController {
     
-    var colors: [Color] = [Color(name: "blue", color: UIColor.systemBlue), Color(name: "pink", color: UIColor.systemPink)]
-    var favorites: [Color] = [Color(name: "raspberry", color: UIColor.systemIndigo, favorite: true)]
+    var colors: [ColorSwatch] = [ColorSwatch(name: "blue", color: UIColor.systemBlue), ColorSwatch(name: "pink", color: UIColor.systemPink)]
+    var favorites: [ColorSwatch] = [ColorSwatch(name: "indigo", color: UIColor.systemIndigo, favorite: true)]
     
-    func favorite(_ color: Color) {
-        var newColor = Color(oldColor: color)
-        newColor.favorite.toggle()
-        
-        if color.favorite {
-            guard let index = favorites.firstIndex(where: { $0 == color }) else { return }
-            favorites.remove(at: index)
-            colors.append(newColor)
-        } else {
-            guard let index = colors.firstIndex(where: { $0 == color }) else { return }
-            colors.remove(at: index)
-            favorites.insert(newColor, at: 0)
-        }
+    func updateColors() {
+        let newFavorites = colors.filter({ $0.favorite })
+        for color in newFavorites { favorites.append(color) }
+        colors = colors.filter({ !$0.favorite })
+        favorites = favorites.filter({ $0.favorite == true })
     }
     
     func addRandomColor() {
         let randomColor = UIColor(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), alpha: 1)
-        let newColor = Color(name: "", color: randomColor)
+        let newColor = ColorSwatch(name: "", color: randomColor)
         colors.append(newColor)
     }
 }

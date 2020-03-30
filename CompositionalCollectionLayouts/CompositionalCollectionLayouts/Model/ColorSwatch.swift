@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-struct Color: Hashable {
+struct ColorSwatch: Hashable {
     let name: String
     let color: UIColor
     var favorite: Bool
@@ -19,8 +19,8 @@ struct Color: Hashable {
         hasher.combine(identifier)
     }
     
-    static func == (lhs: Color, rhs: Color) -> Bool {
-        return lhs.identifier == rhs.identifier
+    static func == (lhs: ColorSwatch, rhs: ColorSwatch) -> Bool {
+        return (lhs.identifier == rhs.identifier && lhs.favorite == rhs.favorite)
     }
     
     init(name: String, color: UIColor, favorite: Bool = false) {
@@ -29,7 +29,7 @@ struct Color: Hashable {
         self.favorite = favorite
     }
     
-    init(oldColor: Color) {
+    init(oldColor: ColorSwatch) {
         self.name = oldColor.name
         self.color = oldColor.color
         self.favorite = oldColor.favorite

@@ -13,7 +13,7 @@ class ColorCell: UICollectionViewCell {
     static let reuseIdentifier = "ColorCell"
     let label = UILabel()
     
-    var color: Color? {
+    var swatch: ColorSwatch? {
         didSet {
             updateBackground()
         }
@@ -49,7 +49,7 @@ extension ColorCell {
     }
     
     func updateBackground() {
-        guard let color = color else { return }
+        guard let color = swatch else { return }
         contentView.backgroundColor = color.color
         label.text = color.favorite ? "⭐️" : ""
     }
