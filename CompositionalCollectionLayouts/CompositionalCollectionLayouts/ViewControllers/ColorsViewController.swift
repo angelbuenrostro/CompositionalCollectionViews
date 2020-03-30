@@ -37,8 +37,17 @@ class ColorsViewController: UIViewController {
     func addRandomColorButton() {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = .systemTeal
+        button.backgroundColor = UIColor.opaqueSeparator
+        button.setTitle("Add Color", for: .normal)
+        button.titleLabel?.textAlignment = .center
+        button.setTitleColor(.darkGray, for: .normal)
+        button.titleLabel?.textRect(forBounds: button.frame, limitedToNumberOfLines: 1)
         
+        button.layer.cornerRadius = 20
+        button.layer.masksToBounds = true
+        
+        button.layer.borderWidth = 2.0
+        button.layer.borderColor = CGColor.init(srgbRed: 0.2, green: 0.2, blue: 0.2, alpha: 0.4)
         
         collectionView.addSubview(button)
         
